@@ -141,14 +141,9 @@ export default function GapResults({ result, onRestart }: GapResultsProps) {
           <p className="font-[family-name:var(--font-heading)] text-xs font-bold uppercase tracking-widest text-[var(--color-blue)] mb-2">
             What was approved
           </p>
-          <p className="font-[family-name:var(--font-heading)] text-lg font-bold mb-2">
+          <p className="font-[family-name:var(--font-heading)] text-lg font-bold">
             {CLASS_LABELS[result.approved]}
           </p>
-          <div className="flex gap-3 font-[family-name:var(--font-mono)] text-xs text-[var(--color-grey)]">
-            <span>O: {result.approvedScores.O}</span>
-            <span>A: {result.approvedScores.A}</span>
-            <span>T: {result.approvedScores.T}</span>
-          </div>
         </div>
         <div className="rounded-xl border border-[var(--color-grey-light)] bg-[var(--color-white)] p-5">
           <p
@@ -157,14 +152,9 @@ export default function GapResults({ result, onRestart }: GapResultsProps) {
           >
             What is required
           </p>
-          <p className="font-[family-name:var(--font-heading)] text-lg font-bold mb-2">
+          <p className="font-[family-name:var(--font-heading)] text-lg font-bold">
             {CLASS_LABELS[result.actual]}
           </p>
-          <div className="flex gap-3 font-[family-name:var(--font-mono)] text-xs text-[var(--color-grey)]">
-            <span>O: {result.actualScores.O}</span>
-            <span>A: {result.actualScores.A}</span>
-            <span>T: {result.actualScores.T}</span>
-          </div>
         </div>
       </div>
 
