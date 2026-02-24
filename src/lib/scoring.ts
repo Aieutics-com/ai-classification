@@ -128,6 +128,14 @@ export function computeGap(
   };
 }
 
+/* ── Divergent dimensions ── */
+
+export function getDivergentDimensions(result: GapResult): DimensionClassification[] {
+  return result.dimensionResults.filter(
+    (dim) => CLASS_RANK[dim.classification] > CLASS_RANK[result.approved]
+  );
+}
+
 /* ── Gap narratives ── */
 
 export interface GapNarrative {

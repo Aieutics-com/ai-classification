@@ -4,6 +4,7 @@ export interface PreFilterOption {
   value: "integration" | "innovation";
   label: string;
   description: string;
+  example?: string;
 }
 
 export interface PreFilterQuestion {
@@ -20,11 +21,13 @@ export interface ClassOption {
   value: ClassLevel;
   label: string;
   description: string;
+  example?: string;
 }
 
 export interface ClassQuestion {
   id: number;
   text: string;
+  hint?: string;
   options: ClassOption[];
 }
 

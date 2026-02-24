@@ -3,6 +3,7 @@
 interface OptionCardProps {
   label: string;
   description: string;
+  example?: string;
   selected: boolean;
   onClick: () => void;
 }
@@ -10,6 +11,7 @@ interface OptionCardProps {
 export default function OptionCard({
   label,
   description,
+  example,
   selected,
   onClick,
 }: OptionCardProps) {
@@ -38,6 +40,11 @@ export default function OptionCard({
       <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-grey)] leading-relaxed">
         {description}
       </p>
+      {example && (
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-orange)] leading-relaxed mt-2 italic opacity-70">
+          {example}
+        </p>
+      )}
     </button>
   );
 }

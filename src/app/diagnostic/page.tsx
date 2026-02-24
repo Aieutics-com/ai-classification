@@ -274,6 +274,7 @@ function DiagnosticContent() {
                         key={opt.value}
                         label={opt.label}
                         description={opt.description}
+                        example={opt.example}
                         selected={
                           preFilterAnswers[currentPreFilterQ.id] === opt.value
                         }
@@ -295,12 +296,18 @@ function DiagnosticContent() {
                   <p className="font-[family-name:var(--font-body)] text-base mb-4">
                     {currentApprovedQ.text}
                   </p>
+                  {currentApprovedQ.hint && (
+                    <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-grey)] italic mb-4 -mt-2">
+                      {currentApprovedQ.hint}
+                    </p>
+                  )}
                   <div className="space-y-3">
                     {currentApprovedQ.options.map((opt) => (
                       <OptionCard
                         key={opt.value}
                         label={opt.label}
                         description={opt.description}
+                        example={opt.example}
                         selected={
                           approvedAnswers[currentApprovedQ.id] === opt.value
                         }
@@ -330,12 +337,18 @@ function DiagnosticContent() {
                         </span>
                         {q.text}
                       </p>
+                      {q.hint && (
+                        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-grey)] italic mb-4 -mt-2">
+                          {q.hint}
+                        </p>
+                      )}
                       <div className="space-y-3">
                         {q.options.map((opt) => (
                           <OptionCard
                             key={opt.value}
                             label={opt.label}
                             description={opt.description}
+                            example={opt.example}
                             selected={scenarioAnswers[q.id] === opt.value}
                             onClick={() =>
                               setScenarioAnswers((prev) => ({

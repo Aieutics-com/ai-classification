@@ -1,7 +1,11 @@
 "use client";
 
 import type { GapResult, Classification } from "@/lib/types";
-import { getGapNarrative } from "@/lib/scoring";
+import { getGapNarrative, getDivergentDimensions } from "@/lib/scoring";
+import DimensionReflection from "./DimensionReflection";
+import ActionPrompts from "./ActionPrompts";
+import COISection from "./COISection";
+import CTASection from "./CTASection";
 
 interface GapResultsProps {
   result: GapResult;
@@ -20,6 +24,13 @@ const CLASS_POSITION: Record<Classification, number> = {
   transformation: 100,
 };
 
+/* Alignment helper: left-align at 0%, centre at 50%, right-align at 100% */
+const markerAlignment = (pos: number) => {
+  if (pos === 0) return { transform: "translateX(0)", alignItems: "flex-start" as const };
+  if (pos === 100) return { transform: "translateX(-100%)", alignItems: "flex-end" as const };
+  return { transform: "translateX(-50%)", alignItems: "center" as const };
+};
+
 const GAP_COLORS: Record<string, string> = {
   aligned: "var(--color-green)",
   "under-classified": "var(--color-red)",
@@ -29,6 +40,7 @@ const GAP_COLORS: Record<string, string> = {
 export default function GapResults({ result, onRestart }: GapResultsProps) {
   const narrative = getGapNarrative(result);
   const gapColor = GAP_COLORS[result.gapDirection];
+  const divergentDimensions = getDivergentDimensions(result);
 
   const approvedPos = CLASS_POSITION[result.approved];
   const actualPos = CLASS_POSITION[result.actual];
@@ -92,45 +104,69 @@ export default function GapResults({ result, onRestart }: GapResultsProps) {
 
           {/* Markers */}
           <div className="relative h-16 mt-1">
-            {/* Approved marker */}
-            <div
-              className="absolute flex flex-col items-center"
-              style={{
-                left: `${approvedPos}%`,
-                transform: "translateX(-50%)",
-              }}
-            >
+            {result.gapDirection === "aligned" ? (
+              /* Single combined marker when aligned */
               <div
-                className="w-4 h-4 rounded-full border-2 border-white shadow-md"
-                style={{ backgroundColor: "var(--color-blue)" }}
-              />
-              <span className="font-[family-name:var(--font-mono)] text-[10px] text-[var(--color-blue)] mt-1 whitespace-nowrap">
-                Approved as
-              </span>
-              <span className="font-[family-name:var(--font-heading)] text-xs font-bold text-[var(--color-blue)]">
-                {CLASS_LABELS[result.approved]}
-              </span>
-            </div>
+                className="absolute flex flex-col"
+                style={{
+                  left: `${approvedPos}%`,
+                  ...markerAlignment(approvedPos),
+                }}
+              >
+                <div
+                  className="w-4 h-4 rounded-full border-2 border-white shadow-md"
+                  style={{ backgroundColor: gapColor }}
+                />
+                <span className="font-[family-name:var(--font-mono)] text-[10px] mt-1 whitespace-nowrap" style={{ color: gapColor }}>
+                  Approved & required
+                </span>
+                <span className="font-[family-name:var(--font-heading)] text-xs font-bold" style={{ color: gapColor }}>
+                  {CLASS_LABELS[result.approved]}
+                </span>
+              </div>
+            ) : (
+              <>
+                {/* Approved marker */}
+                <div
+                  className="absolute flex flex-col"
+                  style={{
+                    left: `${approvedPos}%`,
+                    ...markerAlignment(approvedPos),
+                  }}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full border-2 border-white shadow-md"
+                    style={{ backgroundColor: "var(--color-blue)" }}
+                  />
+                  <span className="font-[family-name:var(--font-mono)] text-[10px] text-[var(--color-blue)] mt-1 whitespace-nowrap">
+                    Approved as
+                  </span>
+                  <span className="font-[family-name:var(--font-heading)] text-xs font-bold text-[var(--color-blue)]">
+                    {CLASS_LABELS[result.approved]}
+                  </span>
+                </div>
 
-            {/* Actual marker */}
-            <div
-              className="absolute flex flex-col items-center"
-              style={{
-                left: `${actualPos}%`,
-                transform: "translateX(-50%)",
-              }}
-            >
-              <div
-                className="w-4 h-4 rounded-full border-2 border-white shadow-md"
-                style={{ backgroundColor: gapColor }}
-              />
-              <span className="font-[family-name:var(--font-mono)] text-[10px] mt-1 whitespace-nowrap" style={{ color: gapColor }}>
-                Actually requires
-              </span>
-              <span className="font-[family-name:var(--font-heading)] text-xs font-bold" style={{ color: gapColor }}>
-                {CLASS_LABELS[result.actual]}
-              </span>
-            </div>
+                {/* Actual marker */}
+                <div
+                  className="absolute flex flex-col"
+                  style={{
+                    left: `${actualPos}%`,
+                    ...markerAlignment(actualPos),
+                  }}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full border-2 border-white shadow-md"
+                    style={{ backgroundColor: gapColor }}
+                  />
+                  <span className="font-[family-name:var(--font-mono)] text-[10px] mt-1 whitespace-nowrap" style={{ color: gapColor }}>
+                    Actually requires
+                  </span>
+                  <span className="font-[family-name:var(--font-heading)] text-xs font-bold" style={{ color: gapColor }}>
+                    {CLASS_LABELS[result.actual]}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -217,6 +253,31 @@ export default function GapResults({ result, onRestart }: GapResultsProps) {
           ))}
         </div>
       </div>
+
+      {/* Areas requiring attention */}
+      {divergentDimensions.length > 0 && (
+        <div className="mt-10">
+          <h3 className="font-[family-name:var(--font-heading)] text-lg font-bold mb-4">
+            Areas Requiring Attention
+          </h3>
+          {divergentDimensions.map((dim) => (
+            <DimensionReflection
+              key={dim.dimension.id}
+              dimensionResult={dim}
+              gapColor={gapColor}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Recommended next steps */}
+      <ActionPrompts result={result} />
+
+      {/* Cost of ignoring */}
+      <COISection result={result} />
+
+      {/* What this diagnostic doesn't tell you + signature */}
+      <CTASection gapSize={result.gapSize} />
     </div>
   );
 }
